@@ -5,6 +5,7 @@ const b = function (msg) {
 }
 
 b(a)
+/*a*/
 `
 
 export default input

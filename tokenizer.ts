@@ -124,7 +124,7 @@ function tokenizer (input: string) {
       // 记录暂读到的位置的内容
       let temp: string = input[++index]
       // 循环记录读到的内容
-      while (/[A-Za-z0-9_$]/.test(temp)) {
+      while (/[A-Za-z0-9_$]/.test(temp) && index < length) {
         // 记录内容
         value += temp
         // 指向下一个字符
@@ -138,11 +138,11 @@ function tokenizer (input: string) {
     if (/[0-9]/.test(input[index])) {
       let value: string = input[index]
       let temp: string = input[++index]
-      while(/[0-9.]/.test(temp)) {
+      while (/[0-9.]/.test(temp) && index < length) {
         value += temp
         temp = input[++index]
       }
-      tokens.push(new Token(value, 'constant'))
+      tokens.push(new Token(value, 'number'))
       continue
     }
     // 符号
@@ -155,7 +155,7 @@ function tokenizer (input: string) {
         continue
       }
       // 可以进行不同组合的符号
-      if (/[!$%^&*-_+=|\\<>.]/.test(input[index])) {
+      if (/[!$%^&*\-_+=|\\<>.]/.test(input[index])) {
         let value: string = input[index]
         let temp: string = input[++index]
         if (value === '!' || value === '%' || value === '^' || value === '&') {
@@ -170,7 +170,7 @@ function tokenizer (input: string) {
             value += '{'
             tokens.push(new Token(value, 'punctuator'))
           } else {
-            while (/[A-Za-z0-9_$]/.test(temp)) {
+            while (/[A-Za-z0-9_$]/.test(temp) && index < length) {
               // 记录内容
               value += temp
               // 指向下一个字符
@@ -197,7 +197,7 @@ function tokenizer (input: string) {
           continue
         }
         if (value === '_') {
-          while (/[A-Za-z0-9_$]/.test(temp)) {
+          while (/[A-Za-z0-9_$]/.test(temp) && index < length) {
             // 记录内容
             value += temp
             // 指向下一个字符
@@ -260,10 +260,10 @@ function tokenizer (input: string) {
                 value += temp
                 index++
               } else {
-                throw new Error(`Unexpected token: ${ value }`)
+                throw new Error(`Syntax Error: octal numbers(${ value }) out of range(0 - 7).`)
               }
             } else {
-              throw new Error(`Unexpected token: ${ value }`)
+              throw new Error(`Syntax Error: octal numbers(${ value }) out of range(0 - 7).`)
             }
           } else if (temp === 'x') {
             if (/[0-9a-fA-F]/.test(temp)) {
@@ -273,13 +273,13 @@ function tokenizer (input: string) {
                 value += temp
                 index++
               } else {
-                throw new Error(`Unexpected token: ${ value }`)
+                throw new Error(`Syntax Error: hex numbers(${ value }) out of range(0 - F).`)
               }
             } else {
-              throw new Error(`Unexpected token: ${ value }`)
+              throw new Error(`Syntax Error: hex numbers(${ value }) out of range(0 - F).`)
             }
           }
-          tokens.push(new Token(value, 'constant'))
+          tokens.push(new Token(value, 'string'))
           continue
         }
         if (value === '<') {
@@ -308,35 +308,106 @@ function tokenizer (input: string) {
           if (temp === '.') {
             if (input[++index] === '.') {
               value = '...'
-            } else {
-              throw new Error('Unexpected token: ..')
             }
           }
           tokens.push(new Token(value, 'punctuator'))
           continue
         }
+        throw new Error(`Syntax Error: unexpected token "${ value }".`)
       }
-      // 组成字符串和注释的符号
+      // 组成其他元素的符号
       if (/[`"'/]/.test(input[index])) {
         let value: string = input[index]
         let temp: string = input[++index]
-        if (value === '`') {
-
-        }
-        if (value === '"') {
-
-        }
-        if (value === '\'') {
-          
-        }
+        // 正则、注释、除号
         if (value === '/') {
-          if (temp === '/' || temp === '*' || temp === '=') {
+          if (temp === '=') {
             value += temp
             index++
+            tokens.push(new Token(value, 'punctuator'))
+            continue
+          }
+          if (temp === '/') {
+            value = ''
+            temp = input[++index]
+            while (temp !== '\n' && index < length) {
+              value += temp
+              temp = input[++index]
+            }
+            tokens.push(new Token(value, 'annotation'))
+            continue
+          }
+          if (temp === '*') {
+            value = ''
+            temp = input[++index]
+            let end: string = input[++index]
+            let flag: boolean = true
+            if (end !== undefined) {
+              while (index < length) {
+                if (temp === '*' && end === '/') {
+                  tokens.push(new Token(value.trim(), 'annotation'))
+                  flag = false
+                  index++
+                  break
+                }
+                value += temp
+                temp = end
+                end = input[++index]
+              }
+              if (flag) {
+                throw new Error(`Syntax Error: cross line annotation must have an end(*/).`)
+              }
+              continue
+            } else {
+              throw new Error(`Syntax Error: cross line annotation must have an end(*/).`)
+            }
           }
           tokens.push(new Token(value, 'punctuator'))
-          continue
         }
+        // 字符串
+        if (value === '`') {
+          while (temp !== '`' && index < length) {
+            value += temp
+            temp = input[++index]
+          }
+          if (temp === '`') {
+            value += temp
+            index++
+            tokens.push(new Token(value, 'string'))
+            continue
+          }
+        }
+        if (value === '"') {
+          while (temp !== '"' && index < length) {
+            if (temp === '\n') {
+              throw new Error(`Syntax Error: unexpected token "${ value }".`)
+            }
+            value += temp
+            temp = input[++index]
+          }
+          if (temp === '"') {
+            value += temp
+            index++
+            tokens.push(new Token(value, 'string'))
+            continue
+          }
+        }
+        if (value === '\'') {
+          while (temp !== '\'' && index < length) {
+            if (temp === '\n') {
+              throw new Error(`Syntax Error: unexpected token "${ value }".`)
+            }
+            value += temp
+            temp = input[++index]
+          }
+          if (temp === '\'') {
+            value += temp
+            index++
+            tokens.push(new Token(value, 'string'))
+            continue
+          }
+        }
+        throw new Error(`Syntax Error: unexpected token "${ value }" + ${input[84]} + ${input[85]} + ${input[86]}.`)
       }
     }
   }
