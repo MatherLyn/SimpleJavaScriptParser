@@ -1,5 +1,3 @@
-import input from './input'
-
 class Token {
 
   public value: string
@@ -412,6 +410,7 @@ function tokenizer (input: string) {
     }
   }
   console.log(tokens)
+  return tokens
 }
 
-tokenizer(input)
+export default tokenizer

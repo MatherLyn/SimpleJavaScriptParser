@@ -1,0 +1,30 @@
+{
+  "name": "simple-javascript-parser",
+  "version": "1.0.0",
+  "description": "A simple JavaScript parser for learning",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MatherLyn/SimpleJavaScriptParser.git"
+  },
+  "keywords": [
+    "JavaScript",
+    "parser"
+  ],
+  "author": "MatherLyn",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/MatherLyn/SimpleJavaScriptParser/issues"
+  },
+  "homepage": "https://github.com/MatherLyn/SimpleJavaScriptParser#readme",
+  "devDependencies": {
+    "ts-loader": "^6.2.1",
+    "typescript": "^3.7.5",
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10"
+  }
+}

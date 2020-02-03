@@ -1,4 +1,4 @@
-const input: string = `
+const code: string = `
 const a = 'Hello world.'
 const b = function (msg) {
   console.log(msg)
@@ -8,4 +8,4 @@ b(a)
 /*a*/
 `
 
-export default input
+export default code
