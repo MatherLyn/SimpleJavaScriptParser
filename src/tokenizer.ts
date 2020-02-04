@@ -165,16 +165,18 @@ function tokenizer (input: string) {
   // begin to scan the code
   while(index < length) {
     // 1. SPACE
+    const SPACE = /\s/
     // if the current word is a space, ignore it
-    if (/\s/.test(input[index])) {
+    if (SPACE.test(input[index])) {
       index++
       continue
     }
 
     // 2. LETTER
+    const LETTER = /[A-Za-z]/
     // if it begins with a letter, it may be a keyword or an identifier
     // we have to get the whole word
-    if (/[A-Za-z]/.test(input[index])) {
+    if (LETTER.test(input[index])) {
       // store the value of the word
       let value: string = input[index]
       // store the current letter of this word
@@ -192,11 +194,12 @@ function tokenizer (input: string) {
     }
 
     // 3. NUMBER
+    const NUMBER = /[0-9]/
     // if it begins with a number, it can be:
     //   3.1. a simple number (123)
     //   3.2. an octal number (012)
     //   3.3. a hexical number (0x12)
-    if (/[0-9]/.test(input[index])) {
+    if (NUMBER.test(input[index])) {
       // store the value of the number
       let value: string = input[index]
       // store the current number
@@ -213,49 +216,56 @@ function tokenizer (input: string) {
     }
 
     // 4. PUNCTUATOR
+    const PUNCTUATOR = /[~`!$%^&*()-_+={}\[\]|\\:;"'<,>.?/]/
     // if it begins with a number, it can be:
     //   4.1. a single punctuator (;)
+    const SINGLEPUNC = /[~(){}\[\]?:;,]/
     //   4.2. a complex punctuator with the follow punctuator (+=, ...)
-    //   4.3. a negative number (-123)
-    //   4.4. an hexical number (\x35)
+    //   4.3. an hexical number (\x35)
+    //   4.4. a float number (.123)
     //   4.5. an identifier (_abc)
     //   4.6. a comment (/* abc */, // abc)
+    const COMPOSEPUNC = /[!$%^&*\-_+=|\\<>.]/
     //   4.7. a string ('abc', "abc", `abc`)
-    if (/[~`!$%^&*()-_+={}\[\]|\\:;"'<,>.?/]/.test(input[index])) {
+    const QUOTATIONMARK = /[`"'/]/
+    if (PUNCTUATOR.test(input[index])) {
       // 4.1. single punctuator
-      if (/[~(){}\[\]?:;,]/.test(input[index])) {
+      if (SINGLEPUNC.test(input[index])) {
         let value: string = input[index]
         index++
         tokens.push(new Token(value, 'punctuator'))
         continue
       }
       // 4.2 - 4.6
-      if (/[!$%^&*\-_+=|\\<>.]/.test(input[index])) {
+      if (COMPOSEPUNC.test(input[index])) {
         let value: string = input[index]
         let temp: string = input[++index]
+        // ! , != , % , %= , ^ , ^= , & , &=
         if (value === '!' || value === '%' || value === '^' || value === '&') {
           if (temp === '=') {
             value += '='
+            index++
           }
           tokens.push(new Token(value, 'punctuator'))
           continue
         }
-        if (value === '$') {
+        // $ , ${}
+        else if (value === '$') {
           if (temp === '{') {
             value += '{'
             tokens.push(new Token(value, 'punctuator'))
+            index++
           } else {
             while (/[A-Za-z0-9_$]/.test(temp) && index < length) {
-              // 记录内容
               value += temp
-              // 指向下一个字符
               temp = input[++index]
             }
             tokens.push(new Token(value, 'identifier'))
           }
           continue
         }
-        if (value === '*') {
+        // * , *= , ** , */
+        else if (value === '*') {
           if (temp === '=' || temp === '*' || temp === '/') {
             value += temp
             index++
@@ -263,7 +273,8 @@ function tokenizer (input: string) {
           tokens.push(new Token(value, 'punctuator'))
           continue
         }
-        if (value === '-') {
+        // - , -= , --
+        else if (value === '-') {
           if (temp === '=' || temp === '-') {
             value += temp
             index++
@@ -271,7 +282,8 @@ function tokenizer (input: string) {
           tokens.push(new Token(value, 'punctuator'))
           continue
         }
-        if (value === '_') {
+        // identifier
+        else if (value === '_') {
           while (/[A-Za-z0-9_$]/.test(temp) && index < length) {
             // 记录内容
             value += temp
@@ -280,7 +292,8 @@ function tokenizer (input: string) {
           }
           tokens.push(new Token(value, 'identifier'))
         }
-        if (value === '+') {
+        // += , ++
+        else if (value === '+') {
           if (temp === '=' || temp === '+') {
             value += temp
             index++
@@ -288,7 +301,8 @@ function tokenizer (input: string) {
           tokens.push(new Token(value, 'punctuator'))
           continue
         }
-        if (value === '=') {
+        // = , == , === , =>
+        else if (value === '=') {
           if (temp === '=') {
             value += temp
             temp = input[++index]
@@ -303,7 +317,8 @@ function tokenizer (input: string) {
           tokens.push(new Token(value, 'punctuator'))
           continue
         }
-        if (value === '|') {
+        // | , |= , ||
+        else if (value === '|') {
           if (temp === '=' || temp === '|') {
             value += temp
             index++
@@ -311,7 +326,8 @@ function tokenizer (input: string) {
           tokens.push(new Token(value, 'punctuator'))
           continue
         }
-        if (value === '\\') {
+        // \ , string , hex
+        else if (value === '\\') {
           if (temp === 'a' ||
               temp === 'b' ||
               temp === 'f' ||
@@ -338,7 +354,8 @@ function tokenizer (input: string) {
           tokens.push(new Token(value, 'punctuator'))
           continue
         }
-        if (value === '<') {
+        // < , <= , <<
+        else if (value === '<') {
           if (temp === '=' || temp === '<') {
             value += temp
             index++
@@ -346,7 +363,8 @@ function tokenizer (input: string) {
           tokens.push(new Token(value, 'punctuator'))
           continue
         }
-        if (value === '>') {
+        // > , >= , >> , >>>
+        else if (value === '>') {
           if (temp === '=') {
             value += temp
             index++
@@ -360,30 +378,38 @@ function tokenizer (input: string) {
           tokens.push(new Token(value, 'punctuator'))
           continue
         }
-        if (value === '.') {
+        // . , ... , float number
+        else if (value === '.') {
           if (temp === '.') {
             if (input[++index] === '.') {
               value = '...'
             }
+          } else if (/\d/.test(temp)) {
+            value = '0' + temp
+            temp = input[++index]
+            while (/\d/.test(temp) && index < length) {
+              value += temp
+              temp = input[++index]
+            }
+            tokens.push(new Token(value, 'number'))
           }
           tokens.push(new Token(value, 'punctuator'))
           continue
         }
         throw new Error(`Syntax Error: unexpected token "${ value }".`)
       }
-      // 4.7 a string
-      if (/[`"'/]/.test(input[index])) {
+      // 4.7 / , string , comments
+      if (QUOTATIONMARK.test(input[index])) {
         let value: string = input[index]
         let temp: string = input[++index]
-        // 正则、注释、除号
+        // / , /= , comments
         if (value === '/') {
           if (temp === '=') {
             value += temp
             index++
             tokens.push(new Token(value, 'punctuator'))
             continue
-          }
-          if (temp === '/') {
+          } else if (temp === '/') {
             value = ''
             temp = input[++index]
             while (temp !== '\n' && index < length) {
@@ -392,8 +418,7 @@ function tokenizer (input: string) {
             }
             tokens.push(new Token(value, 'comments'))
             continue
-          }
-          if (temp === '*') {
+          } else if (temp === '*') {
             value = ''
             temp = input[++index]
             let end: string = input[++index]
@@ -417,11 +442,31 @@ function tokenizer (input: string) {
             } else {
               throw new Error(`Syntax Error: cross line comments must have an end(*/).`)
             }
+          } else {
+            // we try to scan the following words to judge if this is a regexp
+            // so we define a symbol to retract index if this is not a regexp
+            let tempIndex = index
+            // begin to scan the following words
+            while (temp !== '\n' && temp !== '/' && index < length) {
+              value += temp
+              temp = input[++index]
+            }
+            // if it ends with a /, it becomes a regexp
+            if (temp === '/') {
+              value += temp
+              index++
+              tokens.push(new Token(value, 'regexp'))
+              continue
+            } else {
+              // it's just a normal /, so retract index
+              index = tempIndex
+              tokens.push(new Token('/', 'punctuator'))
+              continue
+            }
           }
-          tokens.push(new Token(value, 'punctuator'))
         }
-        // 字符串
-        if (value === '`') {
+        // string
+        else if (value === '`') {
           while (temp !== '`' && index < length) {
             value += temp
             temp = input[++index]
@@ -433,7 +478,7 @@ function tokenizer (input: string) {
             continue
           }
         }
-        if (value === '"') {
+        else if (value === '"') {
           while (temp !== '"' && index < length) {
             if (temp === '\n') {
               throw new Error(`Syntax Error: unexpected token "${ value }".`)
@@ -448,7 +493,7 @@ function tokenizer (input: string) {
             continue
           }
         }
-        if (value === '\'') {
+        else if (value === '\'') {
           while (temp !== '\'' && index < length) {
             if (temp === '\n') {
               throw new Error(`Syntax Error: unexpected token "${ value }".`)

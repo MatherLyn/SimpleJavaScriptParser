@@ -1,10 +1,7 @@
 const code: string = `
-const a = 'Hello world.'
-const b = function (msg) {
-  return () => { console.log(msg); }
-}
+const a = / abc/
 
-b(a)
+const b = 123 /10
 `
 
 export default code
