@@ -426,7 +426,7 @@ function tokenizer (input: string) {
             if (end !== undefined) {
               while (index < length) {
                 if (temp === '*' && end === '/') {
-                  tokens.push(new Token(value.trim(), 'comments'))
+                  tokens.push(new Token(value, 'comments'))
                   flag = false
                   index++
                   break
@@ -512,7 +512,10 @@ function tokenizer (input: string) {
       }
     }
   }
-  console.log(tokens)
+  document.getElementById('tokenizer').innerHTML =JSON.stringify(tokens)
+  .replace(/(},)/g, '},<br />')
+  .replace(/\[/, '[<br />')
+  .replace(/\]/, '<br />]')
   return tokens
 }
 
