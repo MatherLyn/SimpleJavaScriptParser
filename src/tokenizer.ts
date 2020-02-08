@@ -35,97 +35,24 @@
  */
 
 
- /**
-  * Before the program begins to scan, first we create a Token class. We have:
-  *   1. 'value' to store the value of current token
-  *   2. 'type' to store the possible type of current token
-  * 
-  * The value of 'type' may be:
-  *   1. keyword
-  *   2. identifier
-  *   3. punctuator
-  *   4. comments
-  */
-class Token {
-  // what this word means
-  public value: string
-  // what this word is
-  public type: string
-  constructor (value: string, type: string) {
-    this.value = value
-    this.type = type
-  }
-}
+/**
+ * Before the program starts to scan, we import a Token class from utilities module.
+ * This class ensures that elements in the "tokens" array is an object like:
+ * 
+ * {
+ *    value: ";",
+ *    type: "punctuator"
+ * }
+ * 
+ * View util.ts to learn more about Token class
+ */
+import { Token } from './util'
 
 /**
- * The reserved words table of ECMAScript 6.
+ * Use the reserved words to define words in the code while scanning.
  * If the current word is one of these word, make its type 'keyword'.
  */
-const KEYWORD: Array<string> = [
-  'abstract',
-  'arguments',
-  'boolean',
-  'break',
-  'byte',
-  'case',
-  'catch',
-  'char',
-  'class',
-  'const',
-  'continue',
-  'debugger',
-  'default',
-  'delete',
-  'do',
-  'double',
-  'else',
-  'enum',
-  'eval',
-  'export',
-  'extends',
-  'false',
-  'final',
-  'finally',
-  'float',
-  'for',
-  'function',
-  'goto',
-  'if',
-  'implements',
-  'import',
-  'in',
-  'instanceof',
-  'int',
-  'interface',
-  'let',
-  'long',
-  'native',
-  'new',
-  'null',
-  'package',
-  'private',
-  'protected',
-  'public',
-  'return',
-  'short',
-  'static',
-  'super',
-  'switch',
-  'synchronized',
-  'this',
-  'throw',
-  'throws',
-  'transient',
-  'true',
-  'try',
-  'typeof',
-  'var',
-  'void',
-  'volatile',
-  'while',
-  'with',
-  'yield'
-]
+import { KEYWORD } from './util'
 
 /**
  * The token table, an array to store the scanned tokens.
@@ -196,23 +123,43 @@ function tokenizer (input: string) {
     // 3. NUMBER
     const NUMBER = /[0-9]/
     // if it begins with a number, it can be:
-    //   3.1. a simple number (123)
-    //   3.2. an octal number (012)
-    //   3.3. a hexical number (0x12)
+    //   3.1. an octal number (012, banned)
+    //   3.2. a hexical number (0x12)
+    //   3.3. a simple number (123)
     if (NUMBER.test(input[index])) {
       // store the value of the number
       let value: string = input[index]
       // store the current number
       let temp: string = input[++index]
-      // begin to scan the number
-      while (/[0-9.]/.test(temp) && index < length) {
-        value += temp
-        temp = input[++index]
+      // 3.1 & 3.2
+      if (value === '0') {
+        if (temp === 'x' || temp === 'o') {
+          // a hexical number
+          value += temp
+          temp = input[++index]
+        } else {
+          // octal literal is not allowed to use
+          throw new Error('Octal literals are not allowed in strict mode.')
+        }
+        while (/[0-9A-Fa-f]/.test(temp) && index < length) {
+          value += temp
+          temp = input[++index]
+        }
+        // it can be an octal number or a hexical number
+        tokens.push(new Token(value, 'number'))
+        // end this term and begin to scan the next word
+        continue
+      } else {
+        // begin to scan the number
+        while (/[0-9.]/.test(temp) && index < length) {
+          value += temp
+          temp = input[++index]
+        }
+        // it can be a number
+        tokens.push(new Token(value, 'number'))
+        // end this term and begin to scan the next word
+        continue
       }
-      // it can be a number
-      tokens.push(new Token(value, 'number'))
-      // end this term and begin to scan the next word
-      continue
     }
 
     // 4. PUNCTUATOR
@@ -513,9 +460,10 @@ function tokenizer (input: string) {
     }
   }
   document.getElementById('tokenizer').innerHTML =JSON.stringify(tokens)
-  .replace(/(},)/g, '},<br />')
-  .replace(/\[/, '[<br />')
-  .replace(/\]/, '<br />]')
+  .replace(/^\[/, '<ul>[')
+  .replace(/\]$/, '</li>]</ul>')
+  .replace(/({"value")/g, '<li>&nbsp;&nbsp;&nbsp;&nbsp;{"value"')
+  .replace(/(},)/g, '},</li>')
   return tokens
 }
 

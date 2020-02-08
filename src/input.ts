@@ -1,10 +1,13 @@
 const code: string = `
-const a = / abc/
+const a = 123
 
-const b = 123 /10
+function b () {
+  for (let item of [1, 2, 3, 4]) {
+    console.log(item)
+  }
+}
 
-const c = /* asdfad
-12341234 */
+const c = 010
 `
 
 export default code
