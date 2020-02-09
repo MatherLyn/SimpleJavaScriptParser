@@ -5,3 +5,7 @@ import parser from './parser'
 const tokens = tokenizer(input)
 
 const ast = parser(tokens)
+
+// import util from './util'
+// const a: Array<typeof util.Token> = []
+// console.log(a)

@@ -126,90 +126,33 @@ const KEYWORD: Array<string> = [
  * existence in the AST:
  * 
  * 1. Program: The root of the AST. Every statement except itself is put in its "body"
- * 
- * 
- * . Identifier: A use of identifier.
- * 
- * . NumericLiteral: A wrap of some neccessary property of declaring a number.
- * 
- * . StringLiteral: A wrap of some neccessary property of declaring a string.
- * 
- * . TemplateElement: Strings devided by identifiers in template string.
- * 
- * . TemplateStringLiteral: A wrap of some neccessary property of declaring a template string.
- * 
- * . BooleanLiteral: A wrap of some neccessary property of declaring a boolean.
- * 
- * . NullLiteral: A wrap of some neccessary property of declaring a null pointer.
- * 
- * . Undefined: An undefined.
- * 
- * . NaN: An NaN(not a number).
- * 
- * 
- * . VariableDeclaration: The full statement of a variable declaration.
- *    It's possible that there are more than one declarators in a declaration.(let a = 1, b = 2)
- * 
- * . VariableDeclarator: A declarator is one-to-one with a variable.
- *    It exists in an array called "declaration" in VariableDeclaration.
- * 
- * . FunctionDeclaration: The full statement of a function declaration.
- *    It's one-to-one with a function.
- * 
- * . ClassDeclaration: The full statement of an ES6 class declaration.
- *    It's one-to-one with a class.
- * 
- * . FunctionExpression: An anonymous function.
- * 
- * . ArrowFunctionExpression: ES6 "() => {}", a kind of anonymous function with "this" locked
- *    to its execution context.
- * 
- * . AssignmentExpression: An assignment expression.
- * 
- * . ArrayExpression: An anonymous array used for operation or judgment.
- * 
- * . UnaryExpression: An operation on one variable(or constant).
- * 
- * . BinaryExpression: An operation or relation on two variables(or constant). (a<b 二元表达式 关系表达式 > < !== ===)
- * 
- * . ConditionalExpression: An operation on three variables(or constant).(?:) (三元表达式)
- * 
- * . LogicalExpression: A logical judgement on two variables(or constant). (a || b逻辑表达式 || &&)
- * 
- * . ObjectExpression: A object literal declaration. (a = {})
- * 
- * . UpdateExpression: An operation on a variable for updating itself. (++ --)
- * 
- * . CallExpression: A call on a function (调用 console.log()这种)
- * 
- * . MemberExpression: The name of a member of an object. (console.log没有括号)
- * 
- * 
- * . ExpressionStatement: A wrap of some expressions above. (表达式)
- * 
- * . BlockStatement: A wrap of some expressions by "{}".
- * 
- * . IfStatement: If statement.
- * 
- * . WhileStatement: While loop statement.
- * 
- * . ForStatement: For loop statement.
- * 
- * . ForInStatement: For...in loop statement.
- * 
- * . ForOfStatement: ES6 for...of... loop statement.
- * 
- * 
- * 
- * 
  */
-
 class Program {
   public type: string = 'Program'
   public sourceType: string = 'module'
   public body: Array<Object> = []
 }
 
+
+/** 
+ * 2. Identifier: A use of identifier.
+ * 
+ * 3. NumericLiteral: A wrap of some neccessary property of declaring a number.
+ * 
+ * 4. StringLiteral: A wrap of some neccessary property of declaring a string.
+ * 
+ * 5. TemplateElement: Strings devided by identifiers in template string.
+ * 
+ * 6. TemplateStringLiteral: A wrap of some neccessary property of declaring a template string.
+ * 
+ * 7. BooleanLiteral: A wrap of some neccessary property of declaring a boolean.
+ * 
+ * 8. NullLiteral: A wrap of some neccessary property of declaring a null pointer.
+ * 
+ * 9. Undefined: An undefined.
+ * 
+ * 10. NaN: An NaN(not a number).
+ */ 
 class Identifier {
   public type: string = 'Identifier'
   public name: string
@@ -279,6 +222,297 @@ class NaN {
   public type: string = 'NaN'
 }
 
+
+/** 
+ * 11. FunctionExpression: An anonymous function.
+ * 
+ * 12. ArrowFunctionExpression: ES6 "() => {}", a kind of anonymous function with "this" locked
+ *    to its execution context.
+ * 
+ * 13. AssignmentExpression: An assignment expression.
+ * 
+ * 14. ArrayExpression: An anonymous array used for operation or judgment.
+ * 
+ * 15. UnaryExpression: An operation on one variable(or constant).
+ * 
+ * 16. BinaryExpression: An operation or relation on two variables(or constant). (a<b 二元表达式 关系表达式 > < !== ===)
+ * 
+ * 17. ConditionalExpression: An operation on three variables(or constant).(?:) (三元表达式)
+ * 
+ * 18. LogicalExpression: A logical judgement on two variables(or constant). (a || b逻辑表达式 || &&)
+ * 
+ * 19. ObjectExpression: An object literal declaration. (a = {})
+ * 
+ * 20. ObjectProperty: An object property literal declaration.
+ * 
+ * 21. UpdateExpression: An operation on a variable for updating itself. (++ --)
+ * 
+ * 22. CallExpression: A call on a function (调用 console.log()这种)
+ * 
+ * 23. MemberExpression: The name of a member of an object. (console.log没有括号)
+ */
+class FunctionExpression {
+  public type: string = 'FunctionExpression'
+  public identifier: Identifier
+  public generator: boolean
+  public async: boolean
+  public params: Array<Identifier> = []
+  public body: BlockStatement
+  constructor (identifier: Identifier, generator: boolean, isAsync: boolean, body: BlockStatement) {
+    this.identifier = identifier
+    this.generator = generator
+    this.async = isAsync
+    this.body = body
+  }
+}
+
+class ArrowFunctionExpression {
+  public type: string = 'ArrowFunctionExpression'
+  public identifier: Identifier
+  public generator: boolean
+  public async: boolean
+  public params: Array<Identifier> = []
+  public body: BlockStatement
+  constructor (identifier: Identifier, generator: boolean, isAsync: boolean, body: BlockStatement) {
+    this.identifier = identifier
+    this.generator = generator
+    this.async = isAsync
+    this.body = body
+  }
+}
+
+class AssignmentExpression {
+  public type: string = 'AssignmentExpression'
+  public operator: string
+  public left: any
+  public right: any
+  constructor (operator: string, left: any, right: any) {
+    this.operator = operator
+    this.left = left
+    this.right = right
+  }
+}
+
+class ArrayExpression {
+  public type: string = 'ArrayExpression'
+  public elements: Array<any> = []
+}
+
+class UnaryExpression {
+  public type: string = 'UnaryExpression'
+  public operator: string
+  public argument: any
+  constructor (operator: string, argument: boolean,) {
+    this.operator = operator
+    this.argument = argument
+  }
+}
+
+class BinaryExpression {
+  public type: string = 'BinaryExpression'
+  public identifier: Identifier
+  public generator: boolean
+  public async: boolean
+  public params: Array<Identifier> = []
+  public body: BlockStatement
+  constructor (identifier: Identifier, generator: boolean, isAsync: boolean, body: BlockStatement) {
+    this.identifier = identifier
+    this.generator = generator
+    this.async = isAsync
+    this.body = body
+  }
+}
+
+class ConditionalExpression {
+  public type: string = 'ConditionalExpression'
+  public test: any
+  public consequent: any
+  public alternate: any
+  constructor (test: any, consequent: any, alternate: any) {
+    this.test = test
+    this.consequent = consequent
+    this.alternate = alternate
+  }
+}
+
+class LogicalExpression {
+  public type: string = 'LogicalExpression'
+  public left: any
+  public operator: string
+  public right: any
+  constructor (left: any, operator: string, right: any) {
+    this.left = left
+    this.operator = operator
+    this.right = right
+  }
+}
+
+class ObjectExpression {
+  public type: string = 'ObjectExpression'
+  public properties: Array<ObjectProperty> = []
+}
+
+class ObjectProperty {
+  public type: string = 'ObjectProperty'
+  public method: boolean
+  public key: any
+  public value: any
+  constructor (method: boolean, key: any, value: any) {
+    this.method = method
+    this.key = key
+    this.value = value
+  }
+}
+
+class UpdateExpression {
+  public type: string = 'UpdateExpression'
+  public operator: string
+  public prefix: boolean
+  public argument: Identifier
+  constructor (operator: string, prefix: boolean, argument: Identifier) {
+    this.operator = operator
+    this.prefix = prefix
+    this.argument = argument
+  }
+}
+
+class CallExpression {
+  public type: string = 'CallExpression'
+  public callee: Identifier | MemberExpression
+  constructor (callee: Identifier | MemberExpression) {
+    this.callee = callee
+  }
+}
+
+class MemberExpression {
+  public type: string = 'MemberExpression'
+  public object: Identifier
+  public property: Identifier
+  constructor (object: Identifier, property: Identifier) {
+    this.object = object
+    this.property = property
+  }
+}
+
+
+/** 
+ * 24. ExpressionStatement: A wrap of some expressions above. (表达式)
+ * 
+ * 25. BlockStatement: A wrap of some expressions by "{}".
+ * 
+ * 26. IfStatement: If statement.
+ * 
+ * 27. WhileStatement: While loop statement.
+ * 
+ * 28. ForStatement: For loop statement.
+ * 
+ * 29. ForInStatement: For...in loop statement.
+ * 
+ * 30. ForOfStatement: ES6 for...of... loop statement.
+ * 
+ * 31. ReturnStatement: Return statement at the end of the world.
+ */
+class ExpressionStatement {
+  public type: string = 'ExpressionStatement'
+  public expression: any
+  constructor (expression: any) {
+      this.expression = expression
+  }
+}
+
+class BlockStatement {
+  public type: string = 'BlockStatement'
+  public body: Array<any> = []
+  public directives: Array<any> = []
+}
+
+class IfStatement {
+  public type: string = 'BlockStatement'
+  public test: any
+  public consequent: any
+  constructor (test: any, consequent: any) {
+    this.test = test
+    this.consequent = consequent
+  }
+}
+
+class WhileStatement {
+  public type: string = 'WhileStatement'
+  public test: any
+  public body: any
+  constructor (test: any, body: any) {
+    this.test = test
+    this.body = body
+  }
+}
+
+class ForStatement {
+  public type: string = 'ForStatement'
+  public init: any
+  public test: any
+  public update: any
+  public body: any
+  constructor (init: any, test: any, update: any, body: any) {
+    this.init = init
+    this.test = test
+    this.update = update
+    this.body = body
+  }
+}
+
+class ForInStatement {
+  public type: string = 'ForInStatement'
+  public left: any
+  public right: any
+  public body: any
+  constructor (left: any, right: any, body: any) {
+    this.left = left
+    this.right = right
+    this.body = body
+  }
+}
+
+class ForOfStatement {
+  public type: string = 'ForOfStatement'
+  public await: boolean
+  public left: any
+  public right: any
+  public body: any
+  constructor (isAwait: boolean, left: any, right: any, body: any) {
+    this.await = isAwait
+    this.left = left
+    this.right = right
+    this.body = body
+  }
+}
+
+class ReturnStatement {
+  public type: string = 'ReturnStatement'
+  public argument: any
+  constructor (argument: any) {
+    this.argument = argument
+  }
+}
+
+/** 
+ * 32. VariableDeclaration: The full statement of a variable declaration.
+ *    It's possible that there are more than one declarators in a declaration.(let a = 1, b = 2)
+ * 
+ * 33. VariableDeclarator: A declarator is one-to-one with a variable.
+ *    It exists in an array called "declaration" in VariableDeclaration.
+ * 
+ * 34. FunctionDeclaration: The full statement of a function declaration.
+ *    It's one-to-one with a function.
+ * 
+ * 35. ClassDeclaration: The full statement of an ES6 class declaration.
+ *    It's one-to-one with a class.
+ * 
+ * 36. ClassBody: The body inside a class declared.
+ * 
+ * 37. ClassProperty: The properties of the class declared in the class body.
+ * 
+ * 38. ClassMethod: The methods of the class declared in the class body.
+ */
 class VariableDeclaration {
   public type: string = 'VariableDeclaration'
   public declarations: Array<VariableDeclarator> = []
@@ -291,14 +525,110 @@ class VariableDeclaration {
 class VariableDeclarator {
   public type: string = 'VariableDeclarator'
   public identifier: Identifier
-  public initValue: Identifier | NumericLiteral | StringLiteral | TemplateStringLiteral | BooleanLiteral | NullLiteral | Undefined
-  constructor (name: string, value: Identifier | NumericLiteral | StringLiteral | TemplateStringLiteral | BooleanLiteral | NullLiteral | Undefined) {
+  public initValue: any
+  constructor (name: string, value: any) {
     this.identifier = new Identifier(name)
-    
+    this.initValue = value
+  }
+}
+
+class FunctionDeclaration {
+  public type: string = 'FunctionDeclaration'
+  public identifier: Identifier
+  public generator: boolean
+  public async: boolean
+  public params: Array<Identifier> = []
+  public body: BlockStatement
+  constructor (identifier: Identifier, generator: boolean, isAsync: boolean, body: BlockStatement) {
+    this.identifier = identifier
+    this.generator = generator
+    this.async = isAsync
+    this.body = body
+  }
+}
+
+class ClassDeclaration {
+  public type: string = 'ClassDeclaration'
+  public identifier: Identifier
+  public superClass: Identifier
+  public body: ClassBody = new ClassBody()
+}
+
+class ClassBody {
+  public type: string = 'ClassBody'
+  public body: Array<ClassProperty | ClassMethod> = []
+}
+
+class ClassProperty {
+  public type: string = 'ClassProperty'
+  public static: boolean
+  public key: any
+  public value: any
+  constructor (isStatic: boolean, key: any, value: any) {
+    this.static = isStatic
+    this.key = key
+    this.value = value
+  }
+}
+
+class ClassMethod {
+  public type: string = 'ClassMethod'
+  public static: boolean
+  public kind: string
+  public key: any
+  public generator: boolean
+  public async: boolean
+  public params: Array<Identifier> = []
+  public body: BlockStatement
+  constructor (isStatic: boolean, kind: string, key: any, generator: boolean, isAsync: boolean, body: BlockStatement) {
+    this.static = isStatic
+    this.kind = kind
+    this.key = key
+    this.generator = generator
+    this.async = isAsync
+    this.body = body
   }
 }
 
 export {
   Token,
-  KEYWORD
+  KEYWORD,
+  Program,
+  Identifier,
+  NumericLiteral,
+  StringLiteral,
+  TemplateElement,
+  TemplateStringLiteral,
+  BooleanLiteral,
+  NullLiteral,
+  Undefined,
+  NaN,
+  FunctionExpression,
+  ArrowFunctionExpression,
+  AssignmentExpression,
+  ArrayExpression,
+  UnaryExpression,
+  BinaryExpression,
+  ConditionalExpression,
+  LogicalExpression,
+  ObjectExpression,
+  ObjectProperty,
+  UpdateExpression,
+  CallExpression,
+  MemberExpression,
+  ExpressionStatement,
+  BlockStatement,
+  IfStatement,
+  WhileStatement,
+  ForStatement,
+  ForInStatement,
+  ForOfStatement,
+  ReturnStatement,
+  VariableDeclaration,
+  VariableDeclarator,
+  FunctionDeclaration,
+  ClassDeclaration,
+  ClassBody,
+  ClassProperty,
+  ClassMethod
 }

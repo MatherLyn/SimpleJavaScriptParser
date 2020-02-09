@@ -7,7 +7,7 @@ function b () {
   }
 }
 
-const c = 010
+const c = 0o10
 `
 
 export default code

@@ -17,11 +17,9 @@
  *
  */
 
-import { Token } from './util'
+import * as util from './util'
 
-
-
-function parser (tokens: Array<Token>) {
+function parser (tokens: Array<util.Token>) {
 
 }
 
