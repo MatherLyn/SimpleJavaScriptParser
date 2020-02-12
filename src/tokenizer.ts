@@ -151,7 +151,15 @@ function tokenizer (input: string) {
         continue
       } else {
         // begin to scan the number
+        // record the dot
+        let dot = false
         while (/[0-9.]/.test(temp) && index < length) {
+          if (dot && temp === '.') {
+            throw new Error(`Syntax Error: unexpected token "${ value }.".`)
+          }
+          if (temp === '.') {
+            dot = true
+          }
           value += temp
           temp = input[++index]
         }
@@ -363,7 +371,7 @@ function tokenizer (input: string) {
               value += temp
               temp = input[++index]
             }
-            tokens.push(new Token(value, 'comments'))
+            tokens.push(new Token(value, 'comment-line'))
             continue
           } else if (temp === '*') {
             value = ''
@@ -373,7 +381,7 @@ function tokenizer (input: string) {
             if (end !== undefined) {
               while (index < length) {
                 if (temp === '*' && end === '/') {
-                  tokens.push(new Token(value, 'comments'))
+                  tokens.push(new Token(value, 'comment-block'))
                   flag = false
                   index++
                   break
@@ -383,11 +391,11 @@ function tokenizer (input: string) {
                 end = input[++index]
               }
               if (flag) {
-                throw new Error(`Syntax Error: cross line comments must have an end(*/).`)
+                throw new Error(`Syntax Error: comment block must have an end(*/).`)
               }
               continue
             } else {
-              throw new Error(`Syntax Error: cross line comments must have an end(*/).`)
+              throw new Error(`Syntax Error: comment block must have an end(*/).`)
             }
           } else {
             // we try to scan the following words to judge if this is a regexp
@@ -401,7 +409,11 @@ function tokenizer (input: string) {
             // if it ends with a /, it becomes a regexp
             if (temp === '/') {
               value += temp
-              index++
+              temp = input[++index]
+              while (/[img]/.test(temp)) {
+                value += temp
+                temp = input[++index]
+              }
               tokens.push(new Token(value, 'regexp'))
               continue
             } else {
@@ -459,11 +471,13 @@ function tokenizer (input: string) {
       }
     }
   }
+
   document.getElementById('tokenizer').innerHTML =JSON.stringify(tokens)
   .replace(/^\[/, '<ul>[')
   .replace(/\]$/, '</li>]</ul>')
   .replace(/({"value")/g, '<li>&nbsp;&nbsp;&nbsp;&nbsp;{"value"')
   .replace(/(},)/g, '},</li>')
+
   return tokens
 }
 
