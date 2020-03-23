@@ -32,5 +32,9 @@
     "webpack": "^4.41.5",
     "webpack-cli": "^3.3.10",
     "webpack-dev-server": "^3.10.2"
+  },
+  "dependencies": {
+    "css-loader": "^3.4.2",
+    "style-loader": "^1.1.3"
   }
 }

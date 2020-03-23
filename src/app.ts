@@ -1,3 +1,4 @@
+import './index.css'
 import input from './input'
 import tokenizer from './tokenizer'
 import parser from './parser'
