@@ -1,4 +1,4 @@
-import * as util from "./util"
+import * as util from "../util/util"
 
 function generateVariableDeclaration (container: Array<any>, current: number, tokens: Array<util.Token>, kind: string) {
   const variableDeclaration: util.VariableDeclaration = new util.VariableDeclaration(kind)

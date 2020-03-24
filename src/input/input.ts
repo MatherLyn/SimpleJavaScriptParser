@@ -7,7 +7,6 @@ const f = 0o10
 const g = 'hello world'
 
 const h = a
-/abc/gim
 `
 
 export default code

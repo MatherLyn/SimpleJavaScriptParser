@@ -17,8 +17,8 @@
  *
  */
 
-import * as util from './util'
-import * as generators from './generators'
+import * as util from '../util/util'
+import * as generators from './expression-generates'
 
 /**
  * The root of the AST.
@@ -48,8 +48,6 @@ function parser (tokens: Array<util.Token>) {
     if (token.type === 'keyword') {
       if (token.value === 'let' || token.value === 'const' || token.value === 'var') {
         generators.generateVariableDeclaration(pointer.body, current, tokens, token.value)
-        console.log(current)
-        console.log(root)
       }
     }
 
@@ -90,10 +88,10 @@ function parser (tokens: Array<util.Token>) {
   }
 
   document.getElementById('parser').innerHTML = `<div>${JSON.stringify(Program)}</div>`
-  .replace(/{/g, '{<div>')
-  .replace(/,/g, ',</div><div>')
+  .replace(/{/g, '{<div style="margin-left: 20px">')
+  .replace(/,/g, ',</div><div style="margin-left: 20px">')
   .replace(/}/g, '</div>}')
-  .replace(/\[/g, '[<div>')
+  .replace(/\[/g, '[<div style="margin-left: 20px">')
   .replace(/\]/g, '</div>]')
 
   return Program

@@ -46,13 +46,13 @@
  * 
  * View util.ts to learn more about Token class
  */
-import { Token } from './util'
+import { Token } from '../util/util'
 
 /**
  * Use the reserved words to define words in the code while scanning.
  * If the current word is one of these word, make its type 'keyword'.
  */
-import { KEYWORD } from './util'
+import { KEYWORD } from '../util/util'
 
 /**
  * The token table, an array to store the scanned tokens.
@@ -477,6 +477,8 @@ function tokenizer (input: string) {
   .replace(/\]$/, '</li>]</ul>')
   .replace(/({"value")/g, '<li>&nbsp;&nbsp;&nbsp;&nbsp;{"value"')
   .replace(/(},)/g, '},</li>')
+
+  document.getElementById('tokenizer').style.marginBottom = '40px'
 
   return tokens
 }
